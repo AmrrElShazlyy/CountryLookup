@@ -17,6 +17,7 @@ final class CountrySearchViewModelTests: XCTestCase {
     var mockCountryService: MockCountryServiceProvider!
     var mockLocationService: MockLocationService!
     var mockAPIClient: MockAPIClient<CountryEndpoint>!
+    var mockCachingManager: MockCachingManager!
     var cancellables: Set<AnyCancellable>! = []
     
     override func setUp() {
@@ -24,9 +25,11 @@ final class CountrySearchViewModelTests: XCTestCase {
         mockAPIClient = MockAPIClient<CountryEndpoint>()
         mockCountryService = MockCountryServiceProvider(apiClient: mockAPIClient)
         mockLocationService = MockLocationService()
+        mockCachingManager = MockCachingManager()
         viewModel = CountrySearchViewModel(
             countryService: mockCountryService,
-            locationService: mockLocationService
+            locationService: mockLocationService,
+            cachingManager: mockCachingManager
         )
     }
     
@@ -153,6 +156,9 @@ final class CountrySearchViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.searchText, "")
+        XCTAssertEqual(mockCachingManager.saveCountryCallCount, 1)
+        XCTAssertEqual(mockCachingManager.savedCountries.count, 1)
+        XCTAssertEqual(mockCachingManager.savedCountries.first?.name.common, "Egypt")
     }
     
     func test_addCountryAlreadyAdded_doesNotAdd() {
@@ -179,6 +185,8 @@ final class CountrySearchViewModelTests: XCTestCase {
         
         // Then
         XCTAssertEqual(viewModel.addedCountries.count, 0)
+        XCTAssertEqual(mockCachingManager.deleteCountryCallCount, 1)
+        XCTAssertEqual(mockCachingManager.savedCountries.count, 0)
     }
 
     // MARK: - Auto-Add Location Tests
@@ -186,7 +194,8 @@ final class CountrySearchViewModelTests: XCTestCase {
         // Given
         let country = createMockCountry(name: "egypt")
         mockAPIClient.requestResult = .success(try! JSONEncoder().encode([country]))
-        
+        viewModel.isLaunchedBefore = false
+
         // When
         await viewModel.autoAddCountryBasedOnLocation()
         
@@ -200,6 +209,57 @@ final class CountrySearchViewModelTests: XCTestCase {
         }
 
         await fulfillment(of: [expectation], timeout: 2)
+    }
+    
+    func test_autoAddCountryBasedOnLocation_calledTwice_setIsLaunchedBefore() async {
+        // Given
+        let country = createMockCountry(name: "egypt")
+        mockAPIClient.requestResult = .success(try! JSONEncoder().encode([country]))
+        
+        // When
+        await viewModel.autoAddCountryBasedOnLocation()
+        await viewModel.autoAddCountryBasedOnLocation()
+        
+        // Then
+        let expectation = XCTestExpectation(description: "Country added")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            XCTAssertTrue(self.viewModel.isLaunchedBefore)
+            expectation.fulfill()
+        }
+        
+        await fulfillment(of: [expectation], timeout: 2)
+    }
+
+    func test_loadCachedCountries_success() {
+        // Given
+        let country1 = createMockCountry(name: "country1")
+        let country2 = createMockCountry(name: "country2")
+        mockCachingManager.savedCountries = [country1, country2]
+        
+        // When
+        viewModel.loadCachedCountries()
+        
+        // Then
+        XCTAssertEqual(mockCachingManager.fetchCountriesCallCount, 1)
+        XCTAssertEqual(mockCachingManager.savedCountries.count, 2)
+        XCTAssertEqual(viewModel.addedCountries.count, 2)
+        XCTAssertEqual(viewModel.addedCountries.first?.name.common, "country1")
+    }
+    
+    func test_loadCachedCountries_calledMultipleTimes_onlyLoadsOnce() {
+        // Given
+        let country1 = createMockCountry(name: "country1")
+        let country2 = createMockCountry(name: "country2")
+        mockCachingManager.savedCountries = [country1, country2]
+        
+        // When
+        viewModel.loadCachedCountries()
+        viewModel.loadCachedCountries()
+        viewModel.loadCachedCountries()
+        
+        // Then
+        XCTAssertEqual(mockCachingManager.fetchCountriesCallCount, 1)
+        XCTAssertEqual(mockCachingManager.savedCountries.count, 2)
     }
 
     // MARK: - Helper Methods

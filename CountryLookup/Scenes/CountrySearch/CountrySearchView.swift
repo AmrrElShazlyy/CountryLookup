@@ -6,13 +6,20 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CountrySearchView: View {
     // MARK: - Private Properties
-    @StateObject private var viewModel = CountrySearchViewModel()
+    @StateObject private var viewModel: CountrySearchViewModel
     private let title = "Countries"
     private let searchBarPrompt = "Search countries..."
     
+    init(modelContainer: ModelContainer) {
+        _viewModel = StateObject(
+            wrappedValue: CountrySearchViewModel(modelContainer: modelContainer)
+        )
+    }
+
     // MARK: body
     var body: some View {
         NavigationStack {
@@ -41,6 +48,7 @@ struct CountrySearchView: View {
                 Text(viewModel.alertMessage)
             }
             .task {
+                viewModel.loadCachedCountries()
                 await viewModel.autoAddCountryBasedOnLocation()
             }
         }
@@ -195,6 +203,6 @@ struct CountryRowView: View {
 }
 
 // MARK: - Preview
-#Preview {
-    CountrySearchView()
-}
+//#Preview {
+//    CountrySearchView(modelContainer: <#ModelContainer#>)
+//}

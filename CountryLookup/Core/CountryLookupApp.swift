@@ -6,12 +6,28 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct CountryLookupApp: App {
+    let countryModelContainer: ModelContainer
+
+    init() {
+        let schema = Schema([CachedCountry.self])
+        let modelConfiguration = ModelConfiguration(schema: schema)
+        do {
+            countryModelContainer = try ModelContainer(
+                for: schema,
+                configurations: modelConfiguration
+            )
+        } catch {
+            fatalError("⚠️⚠️⚠️ Failed to create ModelContainer: \(error.localizedDescription)")
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
-            CountrySearchView()
+            CountrySearchView(modelContainer: countryModelContainer)
         }
     }
 }

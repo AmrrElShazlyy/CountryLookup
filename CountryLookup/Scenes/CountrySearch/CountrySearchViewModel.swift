@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import Network
 import SwiftUI
+import SwiftData
 
 enum SearchState {
     case idle
@@ -26,28 +27,37 @@ class CountrySearchViewModel: ObservableObject {
     @Published var showAlert: Bool = false
     @Published var alertTitle: String = ""
     @Published var alertMessage: String = ""
+    @AppStorage("isLaunchedBefore") var isLaunchedBefore = false
 
     // MARK: - Private Properties
     private let maxCountriesLimit = 5
     private let countryService: CountryService
+    private let cachingManager: CachingManagerProtocol
     private var cancellables: Set<AnyCancellable> = []
     private let networkMonitor = NWPathMonitor()
     private let networkMonitorQueue = DispatchQueue(label: "NetworkMontorQueue")
     private var isNetworkAvailable: Bool = true
     private let locationService: LocationServiceProtocol
     private let defaultCountryCode = "EG"
+    private var isCountriesLoadedFromCache = false
 
-    init(countryService: CountryService,  locationService: LocationServiceProtocol) {
+    init(
+        countryService: CountryService,
+        locationService: LocationServiceProtocol,
+        cachingManager: CachingManagerProtocol
+    ) {
         self.countryService = countryService
         self.locationService = locationService
+        self.cachingManager = cachingManager
         setupNetworkMonitor()
         setupSearchTextObservers()
     }
     
-    convenience init() {
+    convenience init(modelContainer: ModelContainer) {
         self.init(
             countryService: CountryServiceProvider(),
-            locationService: LocationManager()
+            locationService: LocationManager(),
+            cachingManager: CachingManager(modelContainer: modelContainer)
         )
     }
     
@@ -129,19 +139,38 @@ class CountrySearchViewModel: ObservableObject {
     func addCountry(_ country: Country) {
         guard !isCountryAdded(country) else { return }
         addedCountries.append(country)
+        cacheCountry(country)
         searchText = ""
     }
     
     func removeCountry(at offsets: IndexSet) {
+        let countryToRemove = offsets.map { addedCountries[$0] }
         addedCountries.remove(atOffsets: offsets)
+        countryToRemove.forEach { self.unCacheCountry($0) }
+    }
+    
+    func loadCachedCountries() {
+        guard !isCountriesLoadedFromCache else { return }
+        let cachedCountries = cachingManager.fetchCountries()
+        addedCountries = cachedCountries
+        isCountriesLoadedFromCache = true
+    }
+    
+    private func cacheCountry(_ country: Country) {
+        cachingManager.save(country: country)
+    }
+    
+    private func unCacheCountry(_ country: Country) {
+        cachingManager.delete(country: country)
     }
     
     func autoAddCountryBasedOnLocation() async {
-        guard addedCountries.isEmpty else { return }
+        guard !isLaunchedBefore && addedCountries.isEmpty else { return }
 
         let countryCode = await locationService.requestLocationAndGetCountryCode()
         let codeToUse = countryCode ?? defaultCountryCode
         await fetchAndAddCountryByCode(codeToUse)
+        isLaunchedBefore = true
     }
     
     private func fetchAndAddCountryByCode(_ code: String) async {
@@ -167,6 +196,7 @@ class CountrySearchViewModel: ObservableObject {
                 
                 if let country = countries.first {
                     self.addedCountries.append(country)
+                    cacheCountry(country)
                 }
             }
             .store(in: &cancellables)

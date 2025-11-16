@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8A2786792EC9E00C00A84C28 /* CachingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2786782EC9E00C00A84C28 /* CachingManager.swift */; };
+		8A27867B2EC9E08D00A84C28 /* CachedCountry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A27867A2EC9E08D00A84C28 /* CachedCountry.swift */; };
+		8A27867D2ECA250700A84C28 /* MockCachingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A27867C2ECA250700A84C28 /* MockCachingManager.swift */; };
 		8A3CC9642EC78601003ECC8A /* CountrySearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3CC9632EC78601003ECC8A /* CountrySearchViewModel.swift */; };
 		8A3CC9662EC7861C003ECC8A /* CountrySearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3CC9652EC7861C003ECC8A /* CountrySearchView.swift */; };
 		8A3CC9782EC7AB1C003ECC8A /* CountryDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A3CC9762EC7AB1C003ECC8A /* CountryDetailsView.swift */; };
@@ -47,6 +50,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8A2786782EC9E00C00A84C28 /* CachingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachingManager.swift; sourceTree = "<group>"; };
+		8A27867A2EC9E08D00A84C28 /* CachedCountry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedCountry.swift; sourceTree = "<group>"; };
+		8A27867C2ECA250700A84C28 /* MockCachingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCachingManager.swift; sourceTree = "<group>"; };
 		8A3CC9632EC78601003ECC8A /* CountrySearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountrySearchViewModel.swift; sourceTree = "<group>"; };
 		8A3CC9652EC7861C003ECC8A /* CountrySearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountrySearchView.swift; sourceTree = "<group>"; };
 		8A3CC9762EC7AB1C003ECC8A /* CountryDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountryDetailsView.swift; sourceTree = "<group>"; };
@@ -97,6 +103,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8A2786772EC9DFF600A84C28 /* Caching */ = {
+			isa = PBXGroup;
+			children = (
+				8A2786782EC9E00C00A84C28 /* CachingManager.swift */,
+				8A27867A2EC9E08D00A84C28 /* CachedCountry.swift */,
+			);
+			path = Caching;
+			sourceTree = "<group>";
+		};
 		8A3CC9622EC785F5003ECC8A /* CountrySearch */ = {
 			isa = PBXGroup;
 			children = (
@@ -176,6 +191,7 @@
 				8A8318EE2EC673CA004B18BC /* MockAPIClient.swift */,
 				8A8318F22EC68384004B18BC /* MockCountryServiceProvider.swift */,
 				8A3CC9832EC92186003ECC8A /* MockLocationService.swift */,
+				8A27867C2ECA250700A84C28 /* MockCachingManager.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -231,6 +247,7 @@
 				8AF23CA32EC63C4A007BE58E /* Resources */,
 				8A8318D12EC64D15004B18BC /* Networking */,
 				8A3CC9802EC8D4A8003ECC8A /* Location */,
+				8A2786772EC9DFF600A84C28 /* Caching */,
 				8A3CC97D2EC7DCF7003ECC8A /* Extensions */,
 				8AF23CA52EC63C4A007BE58E /* Scenes */,
 			);
@@ -388,7 +405,9 @@
 				8A3CC9662EC7861C003ECC8A /* CountrySearchView.swift in Sources */,
 				8A3CC97E2EC7DCF7003ECC8A /* ImageExtension.swift in Sources */,
 				8A8318E32EC64F1F004B18BC /* CountryService.swift in Sources */,
+				8A2786792EC9E00C00A84C28 /* CachingManager.swift in Sources */,
 				8A8318E12EC64F0B004B18BC /* CountryModel.swift in Sources */,
+				8A27867B2EC9E08D00A84C28 /* CachedCountry.swift in Sources */,
 				8A8318DF2EC64EEC004B18BC /* CountryEndpoint.swift in Sources */,
 				8A3CC9822EC8D4B2003ECC8A /* LocationManager.swift in Sources */,
 				8A8318E52EC652AC004B18BC /* APIError.swift in Sources */,
@@ -406,6 +425,7 @@
 				8A8318ED2EC672E4004B18BC /* MockURLProtocol.swift in Sources */,
 				8A8318EF2EC673CA004B18BC /* MockAPIClient.swift in Sources */,
 				8A8318F12EC67465004B18BC /* URLSessionAPIClientTests.swift in Sources */,
+				8A27867D2ECA250700A84C28 /* MockCachingManager.swift in Sources */,
 				8A8318EB2EC67231004B18BC /* MockURLSession.swift in Sources */,
 				8A8318F32EC68384004B18BC /* MockCountryServiceProvider.swift in Sources */,
 			);

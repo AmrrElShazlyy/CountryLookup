@@ -39,7 +39,7 @@ A SwiftUI iOS application that allows users to search, add, and manage informati
 
 ## 📋 Requirements
 
-- iOS 17.0+
+- iOS 18.0+
 
 ---
 
